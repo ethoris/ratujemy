@@ -1,0 +1,24 @@
+{
+    "development": {
+      "username": "mratuj",
+      "password": "MaksOla2020",
+      "database": "ratujemy_dane_dev",
+      "host": "localhost",
+      "dialect": "postgres"
+    },
+    "test": {
+      "username": "mratuj",
+      "password": "MaksOla2020",
+      "database": "ratujemy_dane_test",
+      "host": "localhost",
+      "dialect": "postgres"
+    },
+    "production": {
+      "username": "mratuj",
+      "password": "MaksOla2020",
+      "database": "ratujemy_dane",
+      "host": "localhost",
+      "dialect": "postgres"
+    }
+  }
+  

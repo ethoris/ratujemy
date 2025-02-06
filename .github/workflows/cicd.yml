@@ -1,0 +1,65 @@
+name: CI/CD Backend CMS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Uruchamianie testów jednostkowych
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pobranie kodu
+        uses: actions/checkout@v3
+
+      - name: Instalacja Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Instalacja zależności
+        run: npm install
+
+      - name: Uruchomienie testów
+        run: npm test
+
+  build:
+    name: Budowanie i publikacja Dockera
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Pobranie kodu
+        uses: actions/checkout@v3
+
+      - name: Logowanie do Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Budowanie obrazu Dockera
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/cms-backend:latest .
+
+      - name: Push obrazu Dockera
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/cms-backend:latest
+
+  deploy:
+    name: Wdrożenie na serwer
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: SSH do serwera i restart kontenera
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/cms-backend:latest
+            docker stop cms-backend || true
+            docker rm cms-backend || true
+            docker run -d --name cms-backend -p 4000:4000 --env-file .env ${{ secrets.DOCKER_USERNAME }}/cms-backend:latest
