@@ -1,0 +1,41 @@
+# 📌 Ignorowanie folderów zależności i buildów
+node_modules/
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# 📌 Ignorowanie logów i plików tymczasowych
+logs/
+*.log
+logs/*.log
+debug.log
+nohup.out
+
+# 📌 Ignorowanie plików edytora
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+
+# 📌 Ignorowanie danych sesji i cache
+sessions/
+cache/
+tmp/
+
+# 📌 Ignorowanie migracji lokalnych (jeśli używasz Sequelize)
+migrations/
+seeders/
+
+# 📌 Ignorowanie plików multimedialnych (opcjonalnie)
+uploads/
+public/uploads/
+
+# 📌 Ignorowanie plików Docker (jeśli używasz)
+docker-compose.override.yml
