@@ -1,0 +1,210 @@
+openapi: 3.0.0
+info:
+  title: API Dokumentacja - Ratujemy Dane
+  version: '1.0.0'
+  description: Dokumentacja API dla projektu Ratujemy Dane
+servers:
+  - url: http://localhost:4000/api/v1
+    description: Środowisko deweloperskie
+paths:
+  /auth/register:
+    post:
+      summary: Rejestracja użytkownika
+      description: Rejestruje nowego użytkownika.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - confirmPassword
+              properties:
+                email:
+                  type: string
+                  example: test@example.com
+                password:
+                  type: string
+                  example: secret123
+                confirmPassword:
+                  type: string
+                  example: secret123
+      responses:
+        '201':
+          description: Użytkownik zarejestrowany.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Użytkownik zarejestrowany.
+        '400':
+          description: Błąd walidacji.
+  /auth/login:
+    post:
+      summary: Logowanie użytkownika
+      description: Umożliwia zalogowanie użytkownika i zwraca token JWT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: test@example.com
+                password:
+                  type: string
+                  example: secret123
+      responses:
+        '200':
+          description: Token JWT.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '401':
+          description: Nieprawidłowe dane logowania.
+  # Dodaj tutaj inne endpointy, np. /user/profile, /media, /menu, /seo, /page itd.
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          example: test@example.com
+        role:
+          type: string
+          example: user
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-02-09T10:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-02-09T10:00:00Z'
+    Media:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        fileName:
+          type: string
+          example: uploaded.jpg
+        originalName:
+          type: string
+          example: original_uploaded.jpg
+        type:
+          type: string
+          example: image/jpeg
+        size:
+          type: integer
+          example: 3000
+        url:
+          type: string
+          example: /uploads/uploaded.jpg
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-02-09T10:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-02-09T10:00:00Z'
+    Menu:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Home
+        slug:
+          type: string
+          example: home
+        link:
+          type: string
+          example: /home
+        label:
+          type: string
+          example: Start
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-02-09T10:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-02-09T10:00:00Z'
+    Seo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        pageId:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: SEO Title
+        description:
+          type: string
+          example: SEO description for the page
+        keywords:
+          type: string
+          example: seo, test
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-02-09T10:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-02-09T10:00:00Z'
+    Page:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: About Us
+        slug:
+          type: string
+          example: about-us
+        content:
+          type: string
+          example: Treść strony About Us
+        status:
+          type: string
+          enum: [draft, published]
+          example: draft
+        createdAt:
+          type: string
+          format: date-time
+          example: '2025-02-09T10:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-02-09T10:00:00Z'

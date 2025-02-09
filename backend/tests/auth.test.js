@@ -49,8 +49,8 @@ describe('🔐 Testy autoryzacji', () => {
     it('❌ Powinno zwrócić błąd 400, gdy hasła nie pasują do siebie', async () => {
       const payload = {
         email: 'newuser@example.com',
-        password: 'abc123',
-        confirmPassword: 'def456'
+        password: 'secret123',      // poprawna długość
+        confirmPassword: 'secret124'  // różnią się od siebie
       };
 
       const res = await request(app)
@@ -95,7 +95,7 @@ describe('🔐 Testy autoryzacji', () => {
   describe('DELETE /api/v1/auth/delete', () => {
     let token;
     beforeAll(async () => {
-      // Logujemy się, aby uzyskać token
+      // Logujemy się, by uzyskać token
       const res = await request(app)
         .post('/api/v1/auth/login')
         .send({ email: 'test@example.com', password: 'secret123' });
@@ -115,6 +115,6 @@ describe('🔐 Testy autoryzacji', () => {
   });
 
   afterAll(async () => {
-   
+    // Jeśli korzystasz z global setup/teardown, nie zamykaj połączenia tutaj.
   });
 });
