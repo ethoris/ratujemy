@@ -6,6 +6,7 @@ const Post = require('./Post');
 const Media = require('./Media');
 const Menu = require('./Menu');
 const Seo = require('./Seo');
+const Contact = require('./Contact');
 
 
 const db = { sequelize, User ,Page, Post, Media, Menu, Seo,  };
@@ -37,6 +38,6 @@ Post.belongsTo(User, {
 });
 
 module.exports = {
-  sequelize, User, Post, Media, Menu, Seo, Page,
+  sequelize, User, Post, Media, Menu, Seo, Page, Contact,
   initDatabase
 };

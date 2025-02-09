@@ -208,3 +208,38 @@ components:
           type: string
           format: date-time
           example: '2025-02-09T10:00:00Z'
+components:
+  schemas:
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        firstName:
+          type: string
+          example: "Jan"
+        lastName:
+          type: string
+          example: "Kowalski"
+        phone:
+          type: string
+          example: "123456789"
+        email:
+          type: string
+          example: "jan.kowalski@example.com"
+        situationDescription:
+          type: string
+          example: "Mój telefon nie włącza się."
+        deviceType:
+          type: string
+          enum: ["Pendrive/Karta Flash", "Dysk HDD/SSD", "Telefon", "Tablet"]
+          example: "Telefon"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-02-09T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-02-09T10:00:00Z"
