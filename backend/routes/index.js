@@ -1,18 +1,23 @@
+// routes/index.js
 const express = require('express');
-const emailRoutes = require('./email');
-const postRoutes = require('./posts');
-const mediaRoutes = require('./media');
-const menuRoutes = require('./menu');
-const seoRoutes = require('./seo');
-const authRoutes = require('./auth');
 const router = express.Router();
 
-router.use('/pages', require('./pages'));
-router.use('/posts', postRoutes);
+// Importujemy routery przy użyciu ścieżek relatywnych
+const authRoutes = require('./v1/authRoutes');
+const usersRoutes = require('./v1/usersRoutes');
+const mediaRoutes = require('./v1/mediaRoutes');
+const menuRoutes = require('./v1/menuRoutes');
+const seoRoutes = require('./v1/seoRoutes');
+const pageRoutes = require('./v1/pageRoutes');
+const emailRoutes = require('./v1/emailRoutes');
+
+// Montujemy routery
+router.use('/auth', authRoutes);
+router.use('/user', usersRoutes);
 router.use('/media', mediaRoutes);
 router.use('/menu', menuRoutes);
 router.use('/seo', seoRoutes);
+router.use('/page', pageRoutes);
 router.use('/email', emailRoutes);
-router.use('/auth', authRoutes);
 
 module.exports = router;

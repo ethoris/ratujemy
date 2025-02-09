@@ -12,24 +12,36 @@ exports.getAllFiles = async (req, res) => {
 
 exports.uploadFile = async (req, res) => {
   try {
-    if (!req.file) {
+    let fileData;
+    if (req.file) {
+      // Jeśli plik został przesłany przez Multer (multipart/form-data)
+      const { originalname, mimetype, size, filename } = req.file;
+      fileData = {
+        fileName: filename,
+        originalName: originalname,
+        type: mimetype,
+        size: size,
+        url: `/uploads/${filename}`
+      };
+    } else if (req.body && req.body.fileName) {
+      // Jeśli dane są przesłane jako JSON
+      const { fileName, originalName, type, size, url } = req.body;
+      fileData = {
+        fileName,
+        originalName,
+        type,
+        size,
+        url: url || `/uploads/${fileName}`
+      };
+    } else {
       return res.status(400).json({ error: 'Brak pliku w żądaniu' });
     }
-
-    const { originalname, mimetype, size, filename } = req.file; // ✅ Pobranie danych pliku
-
-    const file = await Media.create({
-      fileName: filename, // ✅ Przechowujemy nazwę pliku
-      originalName: originalname, // Oryginalna nazwa
-      type: mimetype, // ✅ Typ MIME
-      size: size, // ✅ Rozmiar pliku w bajtach
-      url: `/uploads/${filename}`, // URL do pobrania pliku
-    });
-
-    res.status(201).json({ message: '✅ Plik przesłany!', file });
+    
+    const file = await Media.create(fileData);
+    return res.status(201).json({ message: '✅ Plik przesłany!', file });
   } catch (error) {
     console.error('❌ Błąd przesyłania pliku:', error);
-    res.status(500).json({ error: 'Błąd przesyłania pliku' });
+    return res.status(500).json({ error: 'Błąd przesyłania pliku' });
   }
 };
 
@@ -38,7 +50,6 @@ exports.deleteFile = async (req, res) => {
     const { id } = req.params;
     const file = await Media.findByPk(id);
     if (!file) return res.status(404).json({ error: 'Plik nie znaleziony' });
-
     await file.destroy();
     res.status(200).json({ message: `✅ Plik o ID ${id} został usunięty` });
   } catch (error) {

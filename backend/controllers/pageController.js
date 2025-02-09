@@ -1,58 +1,46 @@
 const Page = require('../models/Page');
 
-exports.getAllPages = async (req, res) => {
-  try {
-    const { page = 1, limit = 10 } = req.query;
-    const offset = (page - 1) * limit;
-    const pages = await Page.findAndCountAll({ limit, offset });
-    
-    res.status(200).json({
-      total: pages.count,
-      pages: Math.ceil(pages.count / limit),
-      data: pages.rows,
-    });
-  } catch (error) {
-    res.status(500).json({ error: 'Błąd serwera' });
-  }
-};
-
-
 exports.createPage = async (req, res) => {
   try {
     const { title, slug, content, status } = req.body;
-
     if (!title || !slug || !content) {
-      return res.status(400).json({ error: 'Wszystkie pola są wymagane' });
+      return res.status(400).json({ error: 'Wszystkie pola są wymagane (title, slug, content)' });
     }
-
-    const newPage = await Page.create({ title, slug, content, status });
-    res.status(201).json(newPage);
+    const page = await Page.create({ title, slug, content, status });
+    return res.status(201).json({ message: 'Strona utworzona', page });
   } catch (error) {
-    console.error('🔥 Błąd tworzenia strony:', error); // Bardziej szczegółowe logowanie
-    res.status(500).json({ error: 'Błąd tworzenia strony', details: error.message });
+    console.error('Błąd tworzenia strony:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
 
-
-exports.getPageById = async (req, res) => {
+exports.getPages = async (req, res) => {
   try {
-    const page = await Page.findByPk(req.params.id);
-    if (!page) return res.status(404).json({ error: 'Strona nie istnieje' });
-    res.status(200).json(page);
+    const pages = await Page.findAll();
+    return res.status(200).json(pages);
   } catch (error) {
-    res.status(500).json({ error: 'Błąd serwera' });
+    console.error('Błąd pobierania stron:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
 
 exports.updatePage = async (req, res) => {
   try {
+    const { id } = req.params;
     const { title, slug, content, status } = req.body;
-    const page = await Page.findByPk(req.params.id);
-    if (!page) return res.status(404).json({ error: 'Strona nie istnieje' });
-    await page.update({ title, slug, content, status });
-    res.status(200).json(page);
+    const page = await Page.findByPk(id);
+    if (!page) {
+      return res.status(404).json({ error: 'Strona nie znaleziona' });
+    }
+    if (title !== undefined) page.title = title;
+    if (slug !== undefined) page.slug = slug;
+    if (content !== undefined) page.content = content;
+    if (status !== undefined) page.status = status;
+    await page.save();
+    return res.status(200).json({ message: 'Strona zaktualizowana', page });
   } catch (error) {
-    res.status(500).json({ error: 'Błąd aktualizacji strony' });
+    console.error('Błąd aktualizacji strony:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
 
@@ -60,15 +48,13 @@ exports.deletePage = async (req, res) => {
   try {
     const { id } = req.params;
     const page = await Page.findByPk(id);
-
     if (!page) {
-      return res.status(404).json({ error: "Strona nie znaleziona" });
+      return res.status(404).json({ error: 'Strona nie znaleziona' });
     }
-
     await page.destroy();
-    return res.status(200).json({ message: "Strona usunięta" });
+    return res.status(200).json({ message: `Strona o ID ${id} została usunięta` });
   } catch (error) {
-    console.error("❌ Błąd usuwania strony:", error);
-    return res.status(500).json({ error: "Błąd usuwania strony" });
+    console.error('Błąd usuwania strony:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
   }
 };

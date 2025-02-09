@@ -116,8 +116,5 @@ describe('🛠️ Testy modeli', () => {
   // -------------------------------------------------------
   // Koniec testów
   // -------------------------------------------------------
-  afterAll(async () => {
-    // Zamykamy połączenie z bazą
-    await sequelize.close();
-  });
+ 
 });

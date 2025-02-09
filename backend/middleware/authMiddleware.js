@@ -1,15 +1,17 @@
+// middlewares/authMiddleware.js
 const jwt = require('jsonwebtoken');
-const config = require('../config/env/development'); // ✅ Pobieranie konfiguracji
+const env = process.env.NODE_ENV || 'development';
+const config = require(`../config/env/${env}`);
 
 module.exports = (req, res, next) => {
-  const token = req.header('Authorization');
-  if (!token) return res.status(401).json({ error: 'Brak tokena, autoryzacja odrzucona' });
-
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: 'Brak tokena' });
+  const token = authHeader.split(' ')[1];
   try {
-    const verified = jwt.verify(token.replace('Bearer ', ''), config.JWT_SECRET);
-    req.user = verified;
+    const decoded = jwt.verify(token, config.JWT_SECRET);
+    req.user = decoded;  // { id, email }
     next();
   } catch (error) {
-    return res.status(403).json({ error: 'Nieprawidłowy lub wygasły token' });
+    return res.status(401).json({ error: 'Nieprawidłowy token' });
   }
 };

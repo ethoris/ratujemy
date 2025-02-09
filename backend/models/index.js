@@ -1,14 +1,14 @@
 // backend/models/index.js
 const sequelize = require('../config/db.config');
-
+const User = require('./User');
 const Page = require('./Page');
 const Post = require('./Post');
 const Media = require('./Media');
 const Menu = require('./Menu');
 const Seo = require('./Seo');
-const User = require('./User');
 
-const db = { sequelize, Page, Post, Media, Menu, Seo, User };
+
+const db = { sequelize, User ,Page, Post, Media, Menu, Seo,  };
 
 async function initDatabase() {
   // 1. Tworzy tabele zdefiniowane w modelach (dla dev/test).
@@ -37,5 +37,6 @@ Post.belongsTo(User, {
 });
 
 module.exports = {
-  sequelize, User, Post, Media, Menu, Seo, Page
+  sequelize, User, Post, Media, Menu, Seo, Page,
+  initDatabase
 };

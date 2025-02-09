@@ -10,7 +10,8 @@ const Seo = sequelize.define('Seo', {
   },
   pageId: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    unique: true
   },
   title: {
     type: DataTypes.STRING,

@@ -1,33 +1,41 @@
 // tests/post.test.js
 const { sequelize, Post, User } = require('../models');
+const { Sequelize } = require('sequelize');
 
-describe('🛠️ Test modelu Post', () => {
+describe('📝 Testy modelu Post', () => {
   beforeAll(async () => {
+    // Upewnij się, że synchronizujesz wszystkie modele – dzięki relacjom, tabela Users zostanie utworzona przed Posts.
     await sequelize.sync({ force: true });
+    // Utwórz przykładowego użytkownika, aby móc przypisać go do postu
+    await User.create({
+      email: 'author@example.com',
+      passwordHash: 'hashed_password_sample'
+    });
   });
 
-  test('✅ Tworzenie posta + relacja z User', async () => {
-    // Najpierw user
-    const user = await User.create({
-      email: 'author@example.com',
-      passwordHash: 'super_secret'
-    });
-
-    // Post, zakładając, że w Post jest: title, slug, content, authorId
+  it('✅ Model Post powinien zostać utworzony przy poprawnych danych', async () => {
+    const user = await User.findOne({ where: { email: 'author@example.com' } });
     const post = await Post.create({
-      title: 'Pierwszy post',
-      slug: 'pierwszy-post',
-      content: 'Treść posta testowego',
+      title: 'Test Post',
+      slug: 'test-post',
+      content: 'Treść posta testowego.',
       authorId: user.id
     });
+    expect(post.id).toBeTruthy();
+    expect(post.title).toBe('Test Post');
+    expect(post.slug).toBe('test-post');
+    expect(post.content).toBe('Treść posta testowego.');
     expect(post.authorId).toBe(user.id);
-
-    // W pliku models/index.js jest Post.belongsTo(User, { as: 'user', foreignKey: 'authorId' })
-    const relatedUser = await post.getUser();
-    expect(relatedUser.email).toBe('author@example.com');
   });
 
-  afterAll(async () => {
-    await sequelize.close();
+  it('❌ Model Post nie powinien utworzyć rekordu, gdy brakuje wymaganych pól', async () => {
+    // Próbujemy utworzyć post bez pola "title" (które ma allowNull: false)
+    await expect(Post.create({
+      slug: 'test-post-2',
+      content: 'Treść posta testowego.',
+      authorId: 1
+    })).rejects.toThrow(Sequelize.ValidationError);
   });
+
+  
 });

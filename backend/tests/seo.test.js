@@ -1,25 +1,57 @@
-// tests/seo.test.js
+const request = require('supertest');
 const { sequelize, Seo } = require('../models');
+const app = require('../index');
 
-describe('🛠️ Test modelu Seo', () => {
+describe('🔍 Testy SEO', () => {
   beforeAll(async () => {
     await sequelize.sync({ force: true });
   });
 
-  test('✅ Tworzenie Seo', async () => {
-    // Załóżmy, że w Seo masz pageId, title, description, keywords
-    const seo = await Seo.create({
-      pageId: 123,
-      title: 'Test SEO Title',
-      description: 'Test SEO Description',
-      keywords: 'keyword1, keyword2'
-    });
-    expect(seo.id).toBeTruthy();
-    expect(seo.pageId).toBe(123);
-    expect(seo.title).toBe('Test SEO Title');
+  it('✅ Powinno utworzyć rekord SEO', async () => {
+    const payload = {
+      pageId: 1,
+      title: 'Test SEO',
+      description: 'Opis SEO dla testu',
+      keywords: 'seo, test'
+    };
+
+    const res = await request(app)
+      .post('/api/v1/seo')
+      .send(payload)
+      .expect(201);
+
+    expect(res.body).toHaveProperty('message', 'SEO utworzone');
+    expect(res.body.seo).toHaveProperty('id');
+    expect(res.body.seo.title).toBe('Test SEO');
   });
 
-  afterAll(async () => {
-    await sequelize.close();
+  it('✅ Powinno zwrócić listę rekordów SEO', async () => {
+    const res = await request(app)
+      .get('/api/v1/seo')
+      .expect(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
   });
+
+  it('✅ Powinno zaktualizować rekord SEO', async () => {
+    const seoRecord = await Seo.findOne();
+    const res = await request(app)
+      .put(`/api/v1/seo/${seoRecord.id}`)
+      .send({ title: 'Zaktualizowany SEO' })
+      .expect(200);
+    expect(res.body).toHaveProperty('message', 'SEO zaktualizowane');
+    expect(res.body.seo.title).toBe('Zaktualizowany SEO');
+  });
+
+  it('✅ Powinno usunąć rekord SEO', async () => {
+    const seoRecord = await Seo.findOne();
+    const res = await request(app)
+      .delete(`/api/v1/seo/${seoRecord.id}`)
+      .expect(200);
+    expect(res.body).toHaveProperty('message');
+    const deleted = await Seo.findByPk(seoRecord.id);
+    expect(deleted).toBeNull();
+  });
+
+ 
 });

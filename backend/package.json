@@ -4,9 +4,11 @@
     "description": "CMS Backend with Node.js, Express, Sequelize, PostgreSQL, Redis, Stripe, SendGrid, and Passport.js",
     "main": "index.js",
     "scripts": {
-        "dev": "nodemon index.js",
-        "start": "node index.js",
-        "test": "jest"
+        "start": "node server.js",
+        "dev": "kill-port 4000 && nodemon server.js",
+        "migrate": "sequelize db:migrate",
+        "seed": "sequelize db:seed:all",
+        "test": "cross-env NODE_ENV=test jest --runInBand"
     },
     "dependencies": {
         "@sendgrid/mail": "^7.7.0",
@@ -15,6 +17,7 @@
         "body-parser": "^1.20.3",
         "compression": "^1.7.4",
         "cors": "^2.8.5",
+        "cross-env": "^7.0.3",
         "dotenv": "^16.3.1",
         "express": "^4.18.2",
         "helmet": "^7.0.0",
@@ -33,6 +36,7 @@
     },
     "devDependencies": {
         "jest": "^29.7.0",
+        "kill-port": "^2.0.1",
         "nodemon": "^3.0.1",
         "sequelize-cli": "^6.6.2",
         "supertest": "^6.3.4"

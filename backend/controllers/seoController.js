@@ -1,69 +1,61 @@
+// controllers/seoController.js
 const Seo = require('../models/Seo');
-
-exports.getSeoForPage = async (req, res) => {
-  try {
-    const { page } = req.params;
-    const seo = await Seo.findOne({ where: { page } });
-
-    if (!seo) {
-      return res.status(404).json({ error: 'Brak ustawień SEO dla tej strony' });
-    }
-
-    res.status(200).json(seo);
-  } catch (error) {
-    console.error('❌ Błąd pobierania SEO:', error);
-    res.status(500).json({ error: 'Błąd serwera' });
-  }
-};
 
 exports.createSeo = async (req, res) => {
   try {
-    const { page, title, description, keywords } = req.body;
-
-    if (!page || !title || !description || !keywords) {
+    const { pageId, title, description, keywords } = req.body;
+    if (!pageId || !title || !description || !keywords) {
       return res.status(400).json({ error: 'Wszystkie pola są wymagane' });
     }
-
-    const seo = await Seo.create({ page, title, description, keywords });
-
-    res.status(201).json(seo);
+    const seo = await Seo.create({ pageId, title, description, keywords });
+    return res.status(201).json({ message: 'SEO utworzone', seo });
   } catch (error) {
-    console.error('❌ Błąd tworzenia SEO:', error);
-    res.status(500).json({ error: 'Błąd serwera' });
+    console.error('Błąd tworzenia SEO:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
+exports.getSeo = async (req, res) => {
+  try {
+    const seoList = await Seo.findAll();
+    return res.status(200).json(seoList);
+  } catch (error) {
+    console.error('Błąd pobierania SEO:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
 
 exports.updateSeo = async (req, res) => {
   try {
-    const { page } = req.params;
-    const { title, description, keywords } = req.body;
-
-    const seo = await Seo.findOne({ where: { page } });
+    const { id } = req.params;
+    const { pageId, title, description, keywords } = req.body;
+    const seo = await Seo.findByPk(id);
     if (!seo) {
-      return res.status(404).json({ error: 'Brak ustawień SEO dla tej strony' });
+      return res.status(404).json({ error: 'SEO nie znalezione' });
     }
-
-    await seo.update({ title, description, keywords });
-    res.status(200).json(seo);
+    if (pageId !== undefined) seo.pageId = pageId;
+    if (title !== undefined) seo.title = title;
+    if (description !== undefined) seo.description = description;
+    if (keywords !== undefined) seo.keywords = keywords;
+    await seo.save();
+    return res.status(200).json({ message: 'SEO zaktualizowane', seo });
   } catch (error) {
-    console.error('❌ Błąd aktualizacji SEO:', error);
-    res.status(500).json({ error: 'Błąd serwera' });
+    console.error('Błąd aktualizacji SEO:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
 
 exports.deleteSeo = async (req, res) => {
   try {
-    const { page } = req.params;
-    const seo = await Seo.findOne({ where: { page } });
-
+    const { id } = req.params;
+    const seo = await Seo.findByPk(id);
     if (!seo) {
-      return res.status(404).json({ error: 'Brak ustawień SEO do usunięcia' });
+      return res.status(404).json({ error: 'SEO nie znalezione' });
     }
-
     await seo.destroy();
-    res.status(200).json({ message: `Ustawienia SEO dla strony "${page}" zostały usunięte.` });
+    return res.status(200).json({ message: `SEO o ID ${id} zostało usunięte` });
   } catch (error) {
-    console.error('❌ Błąd usuwania SEO:', error);
-    res.status(500).json({ error: 'Błąd serwera' });
+    console.error('Błąd usuwania SEO:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
