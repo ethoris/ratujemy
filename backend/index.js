@@ -2,15 +2,15 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(`./config/env/${env}`);
 const express = require('express');
 const sequelize = require('./config/db.config');
-const routes = require('./routes');
+const authRoutes = require('./routes/auth');
 const logger = require('./config/logger.config');
 const bodyParser = require('body-parser');
 const protectedRoutes = require('./routes/protectedRoute');
 
 const app = express();
 app.use(express.json());
-app.use('/api', routes);
-app.use('/api', protectedRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1', protectedRoutes);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

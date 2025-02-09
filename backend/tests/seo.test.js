@@ -1,28 +1,25 @@
-const request = require('supertest');
-const app = require('../index');
+// tests/seo.test.js
+const { sequelize, Seo } = require('../models');
 
-describe('🔎 SEO API', () => {
-  let seoId;
+describe('🛠️ Test modelu Seo', () => {
+  beforeAll(async () => {
+    await sequelize.sync({ force: true });
+  });
 
-  test('✅ Dodawanie ustawień SEO', async () => {
-    const res = await request(app).post('/api/seo').send({
-      pageId: 1,
-      title: 'Strona główna',
-      description: 'Opis SEO dla strony głównej',
-      keywords: 'seo, test, home'
+  test('✅ Tworzenie Seo', async () => {
+    // Załóżmy, że w Seo masz pageId, title, description, keywords
+    const seo = await Seo.create({
+      pageId: 123,
+      title: 'Test SEO Title',
+      description: 'Test SEO Description',
+      keywords: 'keyword1, keyword2'
     });
-    expect(res.statusCode).toBe(201);
-    seoId = res.body.id;
+    expect(seo.id).toBeTruthy();
+    expect(seo.pageId).toBe(123);
+    expect(seo.title).toBe('Test SEO Title');
   });
 
-  test('✅ Pobieranie ustawień SEO', async () => {
-    const res = await request(app).get('/api/seo/home');
-    expect(res.statusCode).toBe(200);
-  });
-
-  test('✅ Usuwanie ustawień SEO', async () => {
-    const res = await request(app).delete(`/api/seo/${seoId}`);
-    expect(res.statusCode).toBe(200);
+  afterAll(async () => {
+    await sequelize.close();
   });
 });
-

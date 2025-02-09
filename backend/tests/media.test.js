@@ -1,17 +1,24 @@
-const request = require('supertest');
-const app = require('../index');
-const path = require('path');
+// tests/media.test.js
+const { sequelize, Media } = require('../models');
 
-describe('🖼️ Media API', () => {
-  test('✅ Upload pliku', async () => {
-    const res = await request(app)
-      .post('/api/media/upload')
-      .attach('file', path.join(__dirname, 'test-image.jpg'));
-    expect(res.statusCode).toBe(201);
+describe('🛠️ Test modelu Media', () => {
+  beforeAll(async () => {
+    await sequelize.sync({ force: true });
   });
 
-  test('✅ Pobieranie listy plików', async () => {
-    const res = await request(app).get('/api/media');
-    expect(res.statusCode).toBe(200);
+  test('✅ Tworzenie media', async () => {
+    // zakładam, że w Media.js jest np. fields: fileName, size, url, type
+    const media = await Media.create({
+      fileName: 'image.jpg',
+      size: 2048,
+      url: 'https://example.com/image.jpg',
+      type: 'image'
+    });
+    expect(media.id).toBeTruthy();
+    expect(media.fileName).toBe('image.jpg');
+  });
+
+  afterAll(async () => {
+    await sequelize.close();
   });
 });

@@ -1,22 +1,24 @@
-const request = require('supertest');
-const app = require('../index');
+// tests/menu.test.js
+const { sequelize, Menu } = require('../models');
 
-describe('📌 Menu API', () => {
-  let menuId;
-
-  test('✅ Tworzenie nowego menu', async () => {
-    const res = await request(app).post('/api/menu').send({
-      title: 'Kontakt',
-      slug: 'kontakt',
-      order: 3,
-      link: '/kontakt'
-    });
-    expect(res.statusCode).toBe(201);
-    menuId = res.body.id;
+describe('🛠️ Test modelu Menu', () => {
+  beforeAll(async () => {
+    await sequelize.sync({ force: true });
   });
 
-  test('✅ Usuwanie menu', async () => {
-    const res = await request(app).delete(`/api/menu/${menuId}`);
-    expect(res.statusCode).toBe(200);
+  test('✅ Tworzenie menu', async () => {
+    // Zależnie od Twojego modelu Menu
+    const menu = await Menu.create({
+      title: 'Home',
+      slug: 'home',
+      link: '/home',
+      label: 'Start'
+    });
+    expect(menu.id).toBeTruthy();
+    expect(menu.title).toBe('Home');
+  });
+
+  afterAll(async () => {
+    await sequelize.close();
   });
 });

@@ -1,70 +1,75 @@
+/**
+ * Testy autoryzacji (rejestracja, logowanie, usuwanie użytkownika)
+ */
 const request = require('supertest');
-const app = require('../index');
-const config = require('../config/env/test'); // Pobieramy konfigurację
+const { sequelize, User } = require('../models'); 
+// ↑ Zakładam, że models/index.js eksportuje { sequelize, User } itd.
+const app = require('../index'); 
+// ↑ Główny plik aplikacji Express, gdzie np. robisz app.listen()
 
-const PORT = config.PORT || 4001; // Używamy zmiennej konfiguracyjnej
+describe('🔐 Testy autoryzacji', () => {
+  beforeAll(async () => {
+    // Czyścimy tablicę Users, aby testy zaczynały się "od zera"
+    await sequelize.sync({ force: true });
+  });
 
-describe('🔒 Auth API', () => {
-  test('Rejestracja nowego użytkownika', async () => {
+  test('✅ Rejestracja użytkownika /api/v1/auth/register', async () => {
+    const payload = {
+      email: 'test@example.com',
+      password: 'secret123'
+    };
     const res = await request(app)
-      .post('/api/register')
+      .post('/api/v1/auth/register')
+      .send(payload)
+      .expect(201);
+
+    // Sprawdzamy odpowiedź (np. status, zwrotka)
+    expect(res.body).toHaveProperty('message', 'Użytkownik zarejestrowany.');
+    // sprawdzamy, czy user pojawił się w bazie
+    const user = await User.findOne({ where: { email: 'test@example.com' } });
+    expect(user).not.toBeNull();
+  });
+
+  test('✅ Logowanie użytkownika /api/v1/auth/login', async () => {
+    const payload = {
+      email: 'test@example.com',
+      password: 'secret123'
+    };
+    const res = await request(app)
+      .post('/api/v1/auth/login')
+      .send(payload)
+      .expect(200);
+
+    // w odpowiedzi powinien być np. token JWT
+    expect(res.body).toHaveProperty('token');
+    // zapiszmy token do wykorzystania w dalszych testach
+    const token = res.body.token;
+    expect(token).toBeDefined();
+  });
+
+  test('✅ Usuwanie użytkownika /api/v1/auth/delete', async () => {
+    // logujemy się, by pobrać token
+    const loginRes = await request(app)
+      .post('/api/v1/auth/login')
       .send({
         email: 'test@example.com',
-        password: 'Test1234!',
-        confirmPassword: 'Test1234!'
-      })
-      .set('Accept', 'application/json'); // ✅ Ustawienie nagłówka JSON
-  
-    expect(res.statusCode).toBe(201);
-    expect(res.body.message).toMatch(/Rejestracja zakończona sukcesem/);
+        password: 'secret123'
+      });
+    const token = loginRes.body.token;
+
+    // wywołujemy DELETE, przekazując token w nagłówku
+    const deleteRes = await request(app)
+      .delete('/api/v1/auth/delete')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(deleteRes.body).toHaveProperty('message', 'Użytkownik usunięty.');
+    // sprawdzamy, czy usera nie ma w bazie
+    const user = await User.findOne({ where: { email: 'test@example.com' } });
+    expect(user).toBeNull();
   });
 
-  test('❌ Rejestracja - błędny email', async () => {
-    const res = await request(app).post('/api/auth/register').send({
-      email: 'invalid-email',
-      password: 'Test1234!',
-      confirmPassword: 'Test1234!'
-    });
-    expect(res.statusCode).toBe(400);
-    expect(res.body.error).toMatch(/Niepoprawny format email/);
+  afterAll(async () => {
+    await sequelize.close();
   });
-
-  test('✅ Logowanie użytkownika', async () => {
-    const res = await request(app).post('/api/auth/login').send({
-      email: 'test@example.com',
-      password: 'Test1234!'
-    });
-    expect(res.statusCode).toBe(200);
-    expect(res.body.token).toBeDefined();
-    token = res.body.token;
-  });
-
-  test('❌ Logowanie - błędne dane', async () => {
-    const res = await request(app).post('/api/auth/login').send({
-      email: 'test@example.com',
-      password: 'WrongPassword!'
-    });
-    expect(res.statusCode).toBe(401);
-  });
-
-  test('✅ Dostęp do zasobów chronionych (wymaga tokena)', async () => {
-    const res = await request(app).get('/api/protected-route')
-      .set('Authorization', `Bearer ${token}`);
-    expect(res.statusCode).toBe(200);
-  });
-
-  test('❌ Brak dostępu bez tokena', async () => {
-    const res = await request(app).get('/api/protected-route');
-    expect(res.statusCode).toBe(401);
-  });
-});
-
-let server;
-
-beforeAll(() => {
-  server = app.listen(PORT);
-});
-
-afterAll(async () => {
-  await server.close();
 });

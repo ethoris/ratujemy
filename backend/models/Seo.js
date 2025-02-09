@@ -1,14 +1,42 @@
+// backend/models/Seo.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db.config');
 
 const Seo = sequelize.define('Seo', {
-  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-  pageID: { type: DataTypes.STRING, allowNull: false, unique: true }, // ✅ Poprawiona kolumna
-  title: { type: DataTypes.STRING, allowNull: false },
-  description: { type: DataTypes.TEXT, allowNull: false },
-  keywords: { type: DataTypes.STRING, allowNull: false },
-  createdAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-  updatedAt: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
-}, { timestamps: true });
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  pageId: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT, // lub STRING – ważne, by w migracji było to samo
+    allowNull: true
+  },
+  keywords: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'Seo',
+  timestamps: true
+});
 
 module.exports = Seo;
