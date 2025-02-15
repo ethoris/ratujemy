@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Opcjonalnie: własne style globalne */
+:root {
+  --primary-color: #1fb6ff;
+  --secondary-color: #7e5bef;
+  --base-font: 'Roboto', sans-serif;
+  --heading-font: 'Montserrat', sans-serif;
+}
+
+body {
+  font-family: var(--base-font);
+  background-color: var(--brand-gray);
+  color: var(--brand-dark);
+}

@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Konfiguracja CORS – tutaj możesz ograniczyć dostęp tylko do zaufanych domen
 const corsOptions = {
-  origin: ['https://twoja-zaufana-domena.com'], // Wprowadź tutaj domeny, którym chcesz zezwolić na dostęp
+  origin: ['https://twoja-zaufana-domena.com', 'http://localhost:3000'], // Wprowadź tutaj domeny, którym chcesz zezwolić na dostęp
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions)); // Montujemy CORS
