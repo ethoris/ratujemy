@@ -1,6 +1,8 @@
-// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
   theme: {
     extend: {
       animation: {
@@ -13,11 +15,14 @@ module.exports = {
         },
       },
       colors: {
-        'brand-blue': '#1fb6ff',
         'brand-dark': '#1a202c',
-        'bg-brand-blue': '#1fb6ff',
+        'brand-blue': '#1fb6ff',
+      },
+      fontFamily: {
+        sans: ['Roboto', 'sans-serif'],
+        heading: ['Montserrat', 'sans-serif'],
       },
     },
   },
   plugins: [],
-}
+};

@@ -6,14 +6,17 @@ const PORT = process.env.PORT || 4000;
 
 sequelize.sync()
   .then(() => {
-    app.listen(PORT, () => console.log(`Serwer działa na porcie ${PORT}`))
-      .on('error', (err) => {
+    if (require.main === module) {
+      app.listen(PORT, () => {
+        console.log(`Serwer działa na porcie ${PORT}`);
+        console.log("🔑 JWT_SECRET:", config.JWT_SECRET || "⛔ Nie znaleziono JWT_SECRET!");
+      }).on('error', (err) => {
         if (err.code === 'EADDRINUSE') {
           console.error(`Port ${PORT} jest już zajęty. Spróbuj użyć innego portu.`);
         } else {
           console.error('Błąd uruchomienia serwera:', err);
         }
       });
-    console.log("🔑 JWT_SECRET:", config.JWT_SECRET || "⛔ Nie znaleziono JWT_SECRET!");
+    }
   })
   .catch(err => console.error('Błąd synchronizacji bazy:', err));

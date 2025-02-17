@@ -65,8 +65,8 @@ const Navbar = () => {
             {renderLink("/#home", "Strona główna", true)}
             {renderLink("/#about", "O nas", true)}
             {renderLink("/#services", "Usługi", true)}
-            {renderLink("/kontakt", "Kontakt")}
-            {renderLink("/zaloguj", "Zaloguj")}
+            {renderLink("/contact", "Kontakt")}
+            {renderLink("/login", "Zaloguj")}
           </ul>
           {/* Mobile menu toggle */}
           <div className="md:hidden">
@@ -87,8 +87,8 @@ const Navbar = () => {
                   {renderLink("/#home", "Strona główna", true)}
                   {renderLink("/#about", "O nas", true)}
                   {renderLink("/#services", "Usługi", true)}
-                  {renderLink("/kontakt", "Kontakt")}
-                  {renderLink("/zaloguj", "Zaloguj")}
+                  {renderLink("/contact", "Kontakt")}
+                  {renderLink("/login", "Zaloguj")}
                 </ul>
               </div>
             )}

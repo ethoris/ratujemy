@@ -51,7 +51,7 @@ const Hero = () => {
             Zadzwoń do nas
           </a>
           <a
-            href="/kontakt"
+            href="/contact"
             className="bg-brand-blue text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-400 transition transform hover:scale-105"
           >
             Formularz kontaktowy

@@ -22,13 +22,24 @@ export const sendContactMessage = async (formData) => {
 };
 
 export const fetchPosts = async () => {
-    const response = await api.get('/post');
-    return response.data;
-  };
-  
-  export const fetchMedia = async () => {
-    const response = await api.get('/media');
-    return response.data;
-  };
-  
+  const response = await api.get('/post');
+  return response.data;
+};
+
+export const fetchMedia = async () => {
+  const response = await api.get('/media');
+  return response.data;
+};
+
+// Dodane funkcje dla strony głównej
+export const fetchHomepage = async () => {
+  const response = await api.get('/homepage');
+  return response.data;
+};
+
+export const updateHomepage = async (data) => {
+  const response = await api.post('/homepage', data);
+  return response.data;
+};
+
 export default api;

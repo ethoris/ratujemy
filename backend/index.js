@@ -1,31 +1,32 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
-const cors = require('cors'); // Importujemy moduł CORS
+const cors = require('cors');
 const routes = require('./routes');
 const rateLimit = require('express-rate-limit');
 const RedisStore = require('rate-limit-redis');
 const { createClient } = require('redis');
 const config = require('./config/env/development');
-const errorHandler = require('./middleware/errorHandler'); // Import globalnego middleware obsługi błędów
+const errorHandler = require('./middleware/errorHandler');
 const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./config/swagger'); // Importujemy naszą specyfikację Swagger
-
+const swaggerSpec = require('./config/swagger');
+const db = require('./models');
 
 const app = express();
+app.set('trust proxy', 1);
 
-// Ustawienia podstawowe
+// Podstawowa konfiguracja
 app.use(express.json());
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Konfiguracja CORS – tutaj możesz ograniczyć dostęp tylko do zaufanych domen
+// Konfiguracja CORS – dozwolone domeny
 const corsOptions = {
-  origin: ['https://twoja-zaufana-domena.com', 'http://localhost:3000'], // Wprowadź tutaj domeny, którym chcesz zezwolić na dostęp
+  origin: ['https://twoja-zaufana-domena.com', 'http://localhost:3000'],
   optionsSuccessStatus: 200
 };
-app.use(cors(corsOptions)); // Montujemy CORS
+app.use(cors(corsOptions));
 
 // Konfiguracja klienta Redis
 const redisClient = createClient({
@@ -33,39 +34,40 @@ const redisClient = createClient({
 });
 redisClient.connect().catch(console.error);
 
-// Konfiguracja limiterów
-const limiterAnon = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minut
-  max: 50,
-  store: new RedisStore({
-    sendCommand: (...args) => redisClient.sendCommand(...args)
-  }),
-  message: 'Za dużo żądań, spróbuj ponownie później'
-});
+// Rate limiting – stosujemy tylko w środowiskach innym niż testowe
+if (process.env.NODE_ENV !== 'test') {
+  const limiterAnon = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 50,
+    store: new RedisStore({ sendCommand: (...args) => redisClient.sendCommand(...args) }),
+    message: 'Za dużo żądań, spróbuj ponownie później'
+  });
 
-const limiterAuth = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 200,
-  store: new RedisStore({
-    sendCommand: (...args) => redisClient.sendCommand(...args)
-  }),
-  message: 'Za dużo żądań, spróbuj ponownie później'
-});
+  const limiterAuth = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 200,
+    store: new RedisStore({ sendCommand: (...args) => redisClient.sendCommand(...args) }),
+    message: 'Za dużo żądań, spróbuj ponownie później'
+  });
 
-// Middleware rate limiting – ustawiony przed głównymi trasami
-app.use('/api/v1/', (req, res, next) => {
-  if (req.user) {
-    return limiterAuth(req, res, next);
-  }
-  return limiterAnon(req, res, next);
-});
+  // W zależności od obecności użytkownika wybieramy odpowiedni limiter
+  app.use('/api/v1/', (req, res, next) => {
+    if (req.user) {
+      return limiterAuth(req, res, next);
+    }
+    return limiterAnon(req, res, next);
+  });
+}
 
-// Montujemy główny router aplikacji
+app.set('models', db);
+
+// Montujemy główny router (wszystkie endpointy API)
 app.use('/api/v1', routes);
-// Globalna obsługa błędów – musi być dodana na końcu!
+
+// Globalna obsługa błędów
 app.use(errorHandler);
 
-// Montujemy dokumentację API pod ścieżką /api-docs
+// Dokumentacja API za pomocą Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 module.exports = app;

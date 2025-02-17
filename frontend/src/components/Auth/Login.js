@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: '', password: '' });
@@ -7,17 +8,19 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setCredentials({...credentials, [e.target.name]: e.target.value});
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Logika logowania, np. wywołanie API
-      // localStorage.setItem('authToken', data.token);
+      // Wywołanie API logowania
+      const { data } = await axios.post('/api/v1/auth/login', credentials);
+      // Zapis tokena do localStorage
+      localStorage.setItem('authToken', data.token);
       navigate('/');
     } catch (err) {
-      setError('Błędne dane logowania');
+      setError(err.response?.data?.error || 'Błędne dane logowania');
     }
   };
 
@@ -27,8 +30,9 @@ const Login = () => {
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block font-semibold mb-1">Email:</label>
+          <label htmlFor="email" className="block font-semibold mb-1">Email:</label>
           <input 
+            id="email"
             type="email" 
             name="email" 
             value={credentials.email} 
@@ -38,8 +42,9 @@ const Login = () => {
           />
         </div>
         <div>
-          <label className="block font-semibold mb-1">Hasło:</label>
+          <label htmlFor="password" className="block font-semibold mb-1">Hasło:</label>
           <input 
+            id="password"
             type="password" 
             name="password" 
             value={credentials.password} 

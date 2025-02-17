@@ -1,8 +1,9 @@
+// src/components/ProtectedRoute.js
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-  // Przykładowa logika – w praktyce możesz sprawdzać token lub stan użytkownika
+  // Możesz zmienić logikę uwierzytelniania według potrzeb
   const isAuthenticated = localStorage.getItem('authToken');
 
   if (!isAuthenticated) {
