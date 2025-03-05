@@ -29,10 +29,6 @@ sessions/
 cache/
 tmp/
 
-# 📌 Ignorowanie migracji lokalnych (jeśli używasz Sequelize)
-migrations/
-seeders/
-
 # 📌 Ignorowanie plików multimedialnych (opcjonalnie)
 uploads/
 public/uploads/
