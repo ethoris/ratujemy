@@ -1,33 +1,31 @@
 const express = require('express');
 const router = express.Router();
 
+// Helper – jeśli moduł ma właściwość default, zwróć ją, w przeciwnym razie moduł
+const getRouter = (mod) => mod.default || mod;
+
 const authRoutes = require('./v1/authRoutes');
-const userRoutes = require('./v1/usersRoutes'); // Usuń lub zakomentuj, jeśli nie są potrzebne
+const userRoutes = require('./v1/usersRoutes');
 const mediaRoutes = require('./v1/mediaRoutes');
 const menuRoutes = require('./v1/menuRoutes');
 const seoRoutes = require('./v1/seoRoutes');
 const pageRoutes = require('./v1/pageRoutes');
 const contactRoutes = require('./v1/contactRoutes');
 const emailRoutes = require('./v1/emailRoutes');
-const postRoutes = require('./v1/postsRoutes'); // Usuń lub zakomentuj, jeśli nie są potrzebne
-const adminRoutes = require('./v1/adminRoutes'); 
-const homepageRoutes = require('./v1/homepageRoutes'); 
-const homeSectionRoutes = require('./v1/homeSectionRoutes');
-const serviceRoutes = require('./v1/serviceRoutes');
+const postRoutes = require('./v1/postsRoutes');
+const adminRoutes = require('./v1/adminRoutes');
+const homepageRoutes = require('./v1/homepageRoutes');
 
-
-router.use('/auth', authRoutes);
-router.use('/user', userRoutes); // Usuń lub zakomentuj
-router.use('/media', mediaRoutes);
-router.use('/menu', menuRoutes);
-router.use('/seo', seoRoutes);
-router.use('/page', pageRoutes);
-router.use('/contact', contactRoutes);
-router.use('/email', emailRoutes);
-router.use('/post', postRoutes);
-router.use('/admin', adminRoutes);
-router.use('/homepage', homepageRoutes); // Usuń lub zakomentuj, jeśli nie są potrzebne
-router.use('/homepage/sections', homeSectionRoutes);
-router.use('/services', serviceRoutes);
+router.use('/auth', getRouter(authRoutes));
+router.use('/user', getRouter(userRoutes));
+router.use('/media', getRouter(mediaRoutes));
+router.use('/menu', getRouter(menuRoutes));
+router.use('/seo', getRouter(seoRoutes));
+router.use('/page', getRouter(pageRoutes));
+router.use('/contact', getRouter(contactRoutes));
+router.use('/email', getRouter(emailRoutes));
+router.use('/post', getRouter(postRoutes));
+router.use('/admin', getRouter(adminRoutes));
+router.use('/homepage', getRouter(homepageRoutes));
 
 module.exports = router;

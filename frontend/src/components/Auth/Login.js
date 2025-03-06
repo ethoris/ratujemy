@@ -1,59 +1,68 @@
+// frontend/src/components/Auth/Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
-  const [error, setError] = useState(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
     try {
-      // Wywołanie API logowania
-      const { data } = await axios.post('/api/v1/auth/login', credentials);
+      const response = await axios.post('/api/v1/auth/login', { email, password });
+      const token = response.data.token;
+      if (!token) {
+        setError('Nie udało się pobrać tokena, spróbuj ponownie.');
+        return;
+      }
       // Zapis tokena do localStorage
-      localStorage.setItem('authToken', data.token);
-      navigate('/');
+      localStorage.setItem('token', token);
+      console.log('Zalogowano, token zapisany:', token);
+      // Jeśli użytkownik to admin, przekieruj do panelu administratora
+      if (email.toLowerCase() === 'admin@example.com') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
-      setError(err.response?.data?.error || 'Błędne dane logowania');
+      console.error('Błąd logowania:', err);
+      setError('Nieprawidłowy email lub hasło.');
     }
   };
 
   return (
-    <div className="bg-white p-8 rounded shadow max-w-md mx-auto">
-      <h2 className="text-2xl font-heading font-bold mb-4">Logowanie</h2>
-      {error && <p className="text-red-500">{error}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block font-semibold mb-1">Email:</label>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded">
+      <h2 className="text-2xl font-bold mb-4 text-center">Logowanie</h2>
+      {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+      <form onSubmit={handleLogin}>
+        <div className="mb-4">
+          <label className="block mb-1 font-semibold">Email:</label>
           <input 
-            id="email"
             type="email" 
-            name="email" 
-            value={credentials.email} 
-            onChange={handleChange} 
-            className="border p-2 w-full"
-            required
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border p-2 rounded"
+            required 
           />
         </div>
-        <div>
-          <label htmlFor="password" className="block font-semibold mb-1">Hasło:</label>
+        <div className="mb-4">
+          <label className="block mb-1 font-semibold">Hasło:</label>
           <input 
-            id="password"
             type="password" 
-            name="password" 
-            value={credentials.password} 
-            onChange={handleChange} 
-            className="border p-2 w-full"
-            required
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border p-2 rounded"
+            required 
           />
         </div>
-        <button type="submit" className="bg-brand-blue text-white px-4 py-2 rounded-full hover:bg-blue-400 transition">
+        <button 
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+        >
           Zaloguj się
         </button>
       </form>

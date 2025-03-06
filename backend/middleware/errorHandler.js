@@ -1,24 +1,23 @@
-// backend/middleware/errorHandler.js
+// backend/middleware/requireAdmin.js
+const jwt = require('jsonwebtoken');
+const config = require('../config/env/development');
 
-// Globalny middleware obsługujący błędy w Express
-function errorHandler(err, req, res, next) {
-    // Ustaw kod błędu – domyślnie 500
-    const statusCode = err.status || 500;
-  
-    // Loguj błąd – tutaj możesz użyć np. Winston zamiast console.error
-    console.error(err);
-  
-    // W środowisku deweloperskim możesz zwrócić stack trace, w produkcji nie
-    const response = {
-      message: err.message || 'Internal Server Error'
-    };
-  
-    if (process.env.NODE_ENV === 'development' && err.stack) {
-      response.stack = err.stack;
-    }
-  
-    res.status(statusCode).json({ error: response });
+module.exports = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Brak tokena' });
   }
-  
-  module.exports = errorHandler;
-  
+  const token = authHeader.split(' ')[1];
+  jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: 'Nieprawidłowy token' });
+    }
+    // Debug – wypisz zawartość tokena
+    console.log("Decoded token:", decoded);
+    if (decoded.role !== 'admin') {
+      return res.status(403).json({ error: 'Brak uprawnień - wymagany status admina' });
+    }
+    req.user = decoded;
+    next();
+  });
+};

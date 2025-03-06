@@ -1,4 +1,4 @@
-// controllers/authController.js
+// backend/controllers/authController.js
 const { User } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -26,6 +26,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: 'Użytkownik już istnieje' });
     }
     const passwordHash = await bcrypt.hash(password, 10);
+    // Domyślnie rejestrujemy użytkownika z rolą "user". Administratora ustaw ręcznie.
     await User.create({ email, passwordHash });
     return res.status(201).json({ message: 'Użytkownik zarejestrowany.' });
   } catch (error) {
@@ -48,8 +49,14 @@ exports.login = async (req, res) => {
     if (!isValid) {
       return res.status(401).json({ error: 'Nieprawidłowe hasło' });
     }
-    const token = jwt.sign({ id: user.id, email: user.email }, config.JWT_SECRET, { expiresIn: '1h' });
-    return res.status(200).json({ token });
+    // Tutaj mamy dostęp do zmiennej user, więc możemy logować payload
+    console.log("Generating token with payload:", { id: user.id, email: user.email, role: user.role });
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      config.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    return res.status(200).json({ token, role: user.role });
   } catch (error) {
     console.error('Błąd logowania:', error);
     return res.status(500).json({ error: 'Błąd serwera' });
@@ -58,7 +65,7 @@ exports.login = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    // Zakładamy, że middleware authMiddleware ustawia req.user (z tokena)
+    // Zakładamy, że middleware authMiddleware ustawia req.user na podstawie tokena
     const user = await User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ error: 'Użytkownik nie istnieje' });
@@ -70,3 +77,4 @@ exports.deleteUser = async (req, res) => {
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+

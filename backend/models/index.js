@@ -7,10 +7,11 @@ const Media = require('./Media');
 const Menu = require('./Menu');
 const Seo = require('./Seo');
 const Contact = require('./Contact');
+const Homepage = require('./Homepage');
+const HomepageVersion = require('./HomepageVersion'); // Upewnij się, że ten model jest poprawnie eksportowany
 
 
-const db = { sequelize, User ,Page, Post, Media, Menu, Seo,  };
-
+const db = { sequelize, User ,Page, Post, Media, Menu, Seo, Homepage, HomepageVersion };
 async function initDatabase() {
   // 1. Tworzy tabele zdefiniowane w modelach (dla dev/test).
   await sequelize.sync();
@@ -25,6 +26,8 @@ async function initDatabase() {
     await sequelize.query('CREATE INDEX IF NOT EXISTS idx_menu_link ON "Menus" (link)');
     await sequelize.query('CREATE INDEX IF NOT EXISTS idx_seo_pageId ON "Seo" (pageId)');
     await sequelize.query('CREATE INDEX IF NOT EXISTS idx_users_email ON "Users" (email)');
+    await sequelize.query('CREATE INDEX IF NOT EXISTS idx_homepage_id ON "Homepage" (id)');
+    await sequelize.query('CREATE INDEX IF NOT EXISTS idx_homepageversion_homepageId ON "HomepageVersions" (homepageId)');
   }
 }
 
