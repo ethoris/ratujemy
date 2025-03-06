@@ -11,6 +11,7 @@ const errorHandler = require('./middleware/errorHandler');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const db = require('./models');
+const path = require('path');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -71,3 +72,10 @@ app.use(errorHandler);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 module.exports = app;
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Dla SPA - przekierowanie wszystkich nieznalezionych tras do index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});

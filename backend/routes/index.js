@@ -12,6 +12,9 @@ const emailRoutes = require('./v1/emailRoutes');
 const postRoutes = require('./v1/postsRoutes'); // Usuń lub zakomentuj, jeśli nie są potrzebne
 const adminRoutes = require('./v1/adminRoutes'); 
 const homepageRoutes = require('./v1/homepageRoutes'); 
+const homeSectionRoutes = require('./v1/homeSectionRoutes');
+const serviceRoutes = require('./v1/serviceRoutes');
+
 
 router.use('/auth', authRoutes);
 router.use('/user', userRoutes); // Usuń lub zakomentuj
@@ -24,5 +27,7 @@ router.use('/email', emailRoutes);
 router.use('/post', postRoutes);
 router.use('/admin', adminRoutes);
 router.use('/homepage', homepageRoutes); // Usuń lub zakomentuj, jeśli nie są potrzebne
+router.use('/homepage/sections', homeSectionRoutes);
+router.use('/services', serviceRoutes);
 
 module.exports = router;
